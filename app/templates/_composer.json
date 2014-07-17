@@ -1,0 +1,15 @@
+{
+  "pack": {
+    "cache": <%= JSON.stringify(options.cacheEngineOptions) %>
+  },
+  "servers": [
+    {
+      "host": "<%= options.host %>",
+      "port": <%= options.port %>,
+      "options": <%= options.serverOptions || "{}" %>
+    }
+  ],
+  "plugins": {
+<%= options.pluginsOptions.map(function(m){ return "      \"" + m.name + "\":  " + (m.options || "{}");}).join(",\n") %>
+  }
+}

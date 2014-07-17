@@ -1,0 +1,17 @@
+{
+  "name": "<%- _.slugify(appname)  %>",
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=0.11.13"
+  },
+  "dependencies": {
+<%= options.modules.map(function(m){ return "    \"" + m +"\":  \"*\"";}).join(",\n")%>
+  },
+  "devDependencies": {
+<%= options.devModules.map(function(m){ return "    \"" + m +"\":  \"*\"";}).join(",\n")%>
+  },
+  "scripts": {
+    "start": "node --harmony ./node_modules/.bin/hapi --require co-hapi -c composer.json -p ./",
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha --harmony"
+  }
+}

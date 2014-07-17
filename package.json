@@ -1,0 +1,41 @@
+{
+  "name": "generator-co-hapi",
+  "version": "0.0.0",
+  "description": "Hapi application generator with power of co and ES6 generators",
+  "license": "MIT",
+  "main": "app/index.js",
+  "repository": "avbel/generator-co-hapi",
+  "author": {
+    "name": "",
+    "email": "",
+    "url": "https://github.com/avbel"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "files": [
+    "app"
+  ],
+  "keywords": [
+    "yeoman-generator",
+    "yeoman",
+    "co-hapi",
+    "co",
+    "hapi"
+  ],
+  "dependencies": {
+    "async": "^0.9.0",
+    "chalk": "~0.4.0",
+    "yeoman-generator": "~0.16.0",
+    "yosay": "^0.1.0"
+  },
+  "devDependencies": {
+    "mocha": "*"
+  },
+  "peerDependencies": {
+    "yo": ">=1.0.0"
+  }
+}
