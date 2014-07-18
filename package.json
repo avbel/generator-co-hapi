@@ -1,6 +1,6 @@
 {
   "name": "generator-co-hapi",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Hapi application generator with power of co and ES6 generators",
   "license": "MIT",
   "main": "app/index.js",
