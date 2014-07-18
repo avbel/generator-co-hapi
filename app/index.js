@@ -80,7 +80,7 @@ var CoHapiGenerator = yeoman.generators.Base.extend({
     }).filter(function(plugin){
       return plugin.length > 0;
     });
-    this.options.pluginsOptions = {};
+    this.options.pluginsOptions = this.options.pluginsOptions || {};
     if(this.options.plugins.length == 0){
       return;
     }
