@@ -1,0 +1,2 @@
+Run  yo co-hapi:app-plugin <name>  to add plugin (you can pass <name@version> to use specific version of the plugin)
+Run  yo co-hapi:remove-plugin <name>  to remove plugin
