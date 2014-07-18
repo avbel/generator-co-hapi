@@ -1,7 +1,6 @@
 # [Yeoman](http://yeoman.io) generator for [hapi](http://hapijs.com) application with power of [co](https://github.com/visionmedia/co) and ES6 generators
 
 [![Build](https://travis-ci.org/avbel/generator-co-hapi.png)](https://travis-ci.org/avbel/generator-co-hapi)
-[![Dependencies](https://david-dm.org/avbel/generator-co-hapi.png)](https://david-dm.org/avbel/generator-co-hapi)
 
 
 ## Install
