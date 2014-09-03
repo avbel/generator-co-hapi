@@ -19,6 +19,7 @@ var AddpluginGenerator = yeoman.generators.NamedBase.extend({
   },
 
    askFor: function () {
+    if(this.options.nested) return;
     var done = this.async();
     var prompts = [{
       type: 'input',
@@ -50,6 +51,13 @@ var AddpluginGenerator = yeoman.generators.NamedBase.extend({
       version = n[1] || "*";
       pkg.dependencies = pkg.dependencies || {};
       pkg.dependencies[name] = this.options.url || version
+      if(this.options.dependencies){
+        this.options.dependencies.forEach(function(module){
+          if(!pkg.dependencies[module]){
+            pkg.dependencies[module] = "*";
+          }
+        });
+      }
       fs.writeFileSync(packageFile, JSON.stringify(pkg, null, 2));
       var configFile = path.join(this.dest._base, "composer.json");
       if(fs.existsSync(configFile)){
