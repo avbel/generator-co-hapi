@@ -48,15 +48,39 @@ var CoHapiGenerator = yeoman.generators.Base.extend({
       message: 'Enter port which server will listen to (use $env.XXXX to read variable XXXX from environment)',
       default: '3000'
     },{
-      type: 'input',
-      name: 'serverOptions',
-      message: 'Enter other server options in JSON format (if need)',
-      default: '{}'
+      type: 'confirm',
+      name: 'changeBaseUrl',
+      message: 'Would you like to change base url (required if you are going to use front server like nginx)?',
+      default: false
     },{
       type: 'input',
-      name: 'plugins',
-      message: 'Enter plugins to use in this app (comma separated list)',
-      default: ''
+      name: 'baseUrl',
+      message: 'Enter base url',
+      default: 'http://localhost',
+      when: function(a){return a.changeBaseUrl;}
+    },{
+      type: 'confirm',
+      name: 'changeViews',
+      message: 'Would you like to fill settings of views?',
+      default: true
+    },{
+      type: 'input',
+      name: 'viewsPath',
+      message: 'Enter views directory (relative project directory)',
+      default: 'views',
+      when: function(a){return a.changeViews;}
+    },{
+      type: 'input',
+      name: 'viewsExt',
+      message: 'Enter views default file extension',
+      default: 'jade',
+      when: function(a){return a.changeViews;}
+    },{
+      type: 'input',
+      name: 'viewsModule',
+      message: 'Enter module to compile views',
+      default: 'jade',
+      when: function(a){return a.changeViews;}
     },{
       type: 'confirm',
       name: 'createPlugin',
@@ -74,50 +98,17 @@ var CoHapiGenerator = yeoman.generators.Base.extend({
     }.bind(this));
   },
 
-  promtPluginsOptions: function(){
-    this.options.plugins = (this.options.plugins || "").split(",").map(function(plugin){
-      return (plugin || "").trim();
-    }).filter(function(plugin){
-      return plugin.length > 0;
-    });
-    this.options.pluginsOptions = this.options.pluginsOptions || {};
-    if(this.options.plugins.length == 0){
-      return;
-    }
-    var done = this.async();
-    var promtPluginSettings = function(plugin, callback){
-      this.prompt({
-        type: 'input',
-        name: 'options',
-        message: 'Enter options of plugin \"' + plugin + '\" in JSON format (if need)',
-        default: '{}'
-      }, function (props) {
-        this.options.pluginsOptions[plugin] = props.options;
-        callback();
-      }.bind(this));
-    }.bind(this);
-    async.mapSeries(this.options.plugins, promtPluginSettings, done);
-  },
-
   app: function () {
     this.options.cacheEngine = 'catbox-' + this.options.cacheEngine;
-    this.options.modules = ['co', 'hapi', 'co-hapi', this.options.cacheEngine]
-    if(this.options.plugins.length > 0){
-      this.options.modules = this.options.modules.concat(this.options.plugins);
-    }
+    this.options.modules = ['co', 'hapi', 'co-hapi', this.options.cacheEngine];
+    this.options.modules.push(this.options.viewsModule || 'jade');
     this.options.devModules = ['mocha', 'co-mocha', 'should'];
     this.template('_package.json', 'package.json');
     if(this.options.createPlugin){
-      this.options.pluginsOptions['.'] = "{}";
       this.copy('index.js');
     }
     this.options.cacheEngineOptions = JSON.parse(this.options.cacheEngineOptions || '{}');
     this.options.cacheEngineOptions.engine = this.options.cacheEngine;
-    var k, list = [];
-    for(k in this.options.pluginsOptions){
-      list.push({name: k, options: this.options.pluginsOptions[k]})
-    }
-    this.options.pluginsOptions = list;
     this.template('_composer.json', 'composer.json');
   },
 

@@ -6,10 +6,23 @@
     {
       "host": "<%= options.host %>",
       "port": <%= options.port %>,
-      "options": <%= options.serverOptions || "{}" %>
+      "options": {
+        <% if(options.changeBaseUrl){ %>
+        "location": "<%= options.baseUrl %>",
+        <% } %>
+        "views":{
+          "path": "<%= options.viewsPath ||  'views' %>",
+          "defaultExtension": "<%= options.viewsExt || 'jade' %>",
+          "engines": {
+            "<%= options.viewsExt || 'jade' %>": "<%= options.viewsModule || 'jade' %>"
+          }
+        }
+      }
     }
   ],
   "plugins": {
-<%= options.pluginsOptions.map(function(m){ return "      \"" + m.name + "\":  " + (m.options || "{}");}).join(",\n") %>
+    <% if(options.createPlugin) {%>
+      ".": {}
+    <% } %>
   }
 }
