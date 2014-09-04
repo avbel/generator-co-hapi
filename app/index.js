@@ -14,11 +14,6 @@ var CoHapiGenerator = yeoman.generators.Base.extend({
       console.log(chalk.bold.red(err));
       process.exit(1);
     });
-    this.on('end', function () {
-      if (!this.options['skip-install']) {
-        this.installDependencies();
-      }
-    });
   },
 
   askFor: function () {
@@ -27,17 +22,6 @@ var CoHapiGenerator = yeoman.generators.Base.extend({
     this.log(yosay('Welcome to hapi application generator with power of co and ES6 generators!'));
 
     var prompts = [{
-      type: 'list',
-      name: 'cacheEngine',
-      choices: ['memory', 'redis', 'mongodb', 'memcached', 'riak'],
-      message: 'Select cache engine to use',
-      default: 'memory'
-    },{
-      type: 'input',
-      name: 'cacheEngineOptions',
-      message: 'Enter cache engine options in JSON format (if need)',
-      default: '{}'
-    },{
       type: 'input',
       name: 'host',
       message: 'Enter host which server will listen to (use $env.XXXX to read variable XXXX from environment)',
@@ -50,13 +34,19 @@ var CoHapiGenerator = yeoman.generators.Base.extend({
     },{
       type: 'confirm',
       name: 'changeBaseUrl',
-      message: 'Would you like to change base url (required if you are going to use front server like nginx)?',
+      message: 'Would you like to change base url (required if you are going to use frontend like nginx)?',
       default: false
     },{
       type: 'input',
       name: 'baseUrl',
       message: 'Enter base url',
       default: 'http://localhost',
+      filter: function(u){
+        if(u[u.length - 1] == '/'){
+          u = u.substr(0, u.length - 1);
+        }
+        return u;
+      },
       when: function(a){return a.changeBaseUrl;}
     },{
       type: 'confirm',
@@ -86,6 +76,22 @@ var CoHapiGenerator = yeoman.generators.Base.extend({
       name: 'createPlugin',
       message: 'Would you like to add own code to this project (as custom plugin)?',
       default: true
+    },{
+      type: 'list',
+      name: 'cacheEngine',
+      choices: ['memory', 'redis', 'mongodb', 'memcached', 'riak'],
+      message: 'Select cache engine to use',
+      default: 'memory'
+    },{
+      type: 'input',
+      name: 'cacheEngineOptions',
+      message: 'Enter cache engine options in JSON format (if need)',
+      default: '{}'
+    },{
+      type: 'checkbox',
+      name: 'pluginsToAdd',
+      choices: ['co-hapi-mongoose', 'co-hapi-models', 'posto', 'co-hapi-auth', 'good'],
+      message: 'Choose addional plugins you need'
     }
     ];
 
@@ -116,8 +122,67 @@ var CoHapiGenerator = yeoman.generators.Base.extend({
     this.copy('editorconfig', '.editorconfig');
     this.copy('jshintrc', '.jshintrc');
     this.mkdir('test');
+    this.mkdir(this.options.viewsPath || 'views');
     this.copy('mocha.opts', 'test/mocha.opts');
+  },
+
+  setupAddionalPlugins: function(){
+    var i = 0, plugins = this.options.pluginsToAdd || [];
+    var installPlugin = function(plugin, callback){
+      if(plugin == 'co-hapi-mongoose'){
+        this.invoke("co-hapi:mongoose", {
+          options: {
+            'skip-install': true
+          }
+        }, callback);
+      }
+      else if(plugin == 'co-hapi-auth'){
+        this.invoke("co-hapi:auth", {
+          options: {
+            'skip-install': true
+          }
+        }, callback);
+      }
+      else if(plugin == 'posto'){
+        this.invoke("co-hapi:posto", {
+          options: {
+            'skip-install': true
+          }
+        }, callback);
+      }
+      else{
+        this.invoke("co-hapi:add-plugin", {
+          options: {
+            nested: true,
+            'skip-install': true
+          },
+          args: [plugin]
+        }, callback);
+      }
+    }.bind(this);
+    var done = this.async();
+    var f = function(){
+      installPlugin(plugins[i], function(err){
+        if(err) return done(err);
+        i++;
+        if(i == plugins.length) return done();
+        f();
+      });
+    };
+    if(plugins.length > 0){
+      f();
+    }
+    else{
+      done();
+    }
+  },
+
+  setupDependencies: function(){
+    if (!this.options['skip-install']) {
+      this.installDependencies();
+    }
   }
+
 });
 
 module.exports = CoHapiGenerator;

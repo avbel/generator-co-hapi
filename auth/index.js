@@ -85,7 +85,9 @@ var AuthGenerator = yeoman.generators.Base.extend({
     var opts = {minPasswordLength: this.options.minPasswordLength};
     var composerFile = path.join(this.dest._base, "composer.json");
     var composer = JSON.parse(fs.readFileSync(composerFile, "utf8"));
-    var password = (composer.plugins['co-hapi-auth'] || {session: {}}).session.password;
+    var authOpts = (composer.plugins['co-hapi-auth'] || {session: {}});
+    var password = authOpts.session.password;
+    var pepper = authOpts.pepper;
     var done = this.async();
     opts.session = {
       cookie: this.options.sessionCookie,
@@ -142,6 +144,20 @@ var AuthGenerator = yeoman.generators.Base.extend({
         uid(function(err, id){
           if(err) return callback(err);
           opts.session.password = id;
+          callback();
+        });
+      }
+    };
+
+    var fillPepper = function(callback){
+      if(pepper){
+        opts.pepper = pepper;
+        callback();
+      }
+      else{
+        uid(function(err, id){
+          if(err) return callback(err);
+          opts.pepper = id;
           callback();
         });
       }
@@ -230,27 +246,33 @@ var AuthGenerator = yeoman.generators.Base.extend({
       if(err) return done(err);
       fillPassword(function(err){
         if(err) return done(err);
-        addMongoose(function(err){
+        fillPepper(function(err){
           if(err) return done(err);
-          addModels(function(err){
+          addMongoose(function(err){
             if(err) return done(err);
-            addPosto(function(err){
-              self.invoke("co-hapi:add-plugin", {
-                options: {
-                  nested: true,
-                  'skip-install': true,
-                  force: true,
-                  opts: JSON.stringify(opts),
-                  dependencies: dependencies
-                },
-                args: ['co-hapi-auth']
-              }, function(err){
-                if(err) return done(err);
-                if(!self.options['skip-install']) {
-                  self.installDependencies(function(){
-                    copyViewsAndEmailTemplates(done);
-                  });
-                }
+            addModels(function(err){
+              if(err) return done(err);
+              addPosto(function(err){
+                self.invoke("co-hapi:add-plugin", {
+                  options: {
+                    nested: true,
+                    'skip-install': true,
+                    force: true,
+                    opts: JSON.stringify(opts),
+                    dependencies: dependencies
+                  },
+                  args: ['co-hapi-auth']
+                }, function(err){
+                  if(err) return done(err);
+                  if(!self.options['skip-install']) {
+                    self.installDependencies(function(){
+                      copyViewsAndEmailTemplates(done);
+                    });
+                  }
+                  else{
+                    done();
+                  }
+                });
               });
             });
           });
