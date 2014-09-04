@@ -57,8 +57,7 @@ describe('co-hapi generator', function () {
       cacheEngine: "memory",
       cacheEngineOptions: "{\"test1\": true}",
       host: "my-host",
-      port: "8080",
-      serverOptions: "{\"serverOptions\": \"test\"}"
+      port: "8080"
     });
     this.app.run({}, function () {
       var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'temp', 'composer.json'), 'utf8'));
@@ -66,6 +65,30 @@ describe('co-hapi generator', function () {
       assert(config.pack.cache.test1 === true);
       assert(config.servers[0].host === 'my-host');
       assert(config.servers[0].port === 8080);
+      assert(config.servers[0].options.views.path === "views");
+      assert(config.servers[0].options.views.defaultExtension === "jade");
+      done();
+    });
+  });
+
+  it('fills right views soptions into composer.json', function (done) {
+    helpers.mockPrompt(this.app, {
+      cacheEngine: "memory",
+      cacheEngineOptions: "{\"test1\": true}",
+      host: "my-host",
+      port: "8080",
+      changeViews: true,
+      viewsPath: "test",
+      viewsExt: "html",
+      viewsModule: "lodash"
+    });
+    this.app.run({}, function () {
+      var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'temp', 'composer.json'), 'utf8'));
+      assert(config.servers[0].options.views.path === "test");
+      assert(config.servers[0].options.views.defaultExtension === "html");
+      assert(config.servers[0].options.views.engines["html"] === "lodash");
+      var pkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'temp', 'package.json'), 'utf8'));
+      assert(pkg.dependencies["lodash"]);
       done();
     });
   });
