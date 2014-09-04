@@ -133,7 +133,7 @@ var PostoGenerator = yeoman.generators.Base.extend({
       opts.transportOptions = JSON.parse(this.options.anotherTransportOptions || "{}");
     }
     opts.from = this.options.from;
-    opts.templatesOptions = { directory: this.options.templatesDirectory };
+    opts.templatesOptions = { directory: this.options.templatesDirectory || "templates" };
     this.mkdir(opts.templatesOptions.directory);
     this.invoke("co-hapi:add-plugin", {
       options: {

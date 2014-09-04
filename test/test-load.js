@@ -6,5 +6,8 @@ describe('co-hapi generator', function () {
     require('../app');
     require('../add-plugin');
     require('../remove-plugin');
+    require('../mongoose');
+    require('../posto');
+    require('../auth');
   });
 });
